@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ Chí Minh - Người đi tìm hình của đất nước</title>
-    <!-- Tải Tailwind CSS -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hồ Chí Minh - Người đi tìm hình của Nước</title>
+
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tải Google Fonts cho giao diện -->
+    <!-- Google Fonts + FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Paytone+One&family=Merriweather:wght@400;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
-    <!-- Tải Font Awesome cho icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Tải Tone.js cho hiệu ứng âm thanh (BGM Kahoot-style) -->
+
+    <!-- Tone.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
 
+    <!-- Firebase (compat) - optional: enabled only if you paste config below -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
-        /* Định nghĩa fonts theo yêu cầu */
         .font-header-footer { font-family: 'Paytone One', sans-serif; }
         .font-normal { font-family: 'Merriweather', serif; }
         .font-quiz { font-family: 'Montserrat', sans-serif; }
 
-        /* ========================================================= */
-        /* HIỆU ỨNG NỀN ĐỘNG (DYNAMIC BACKGROUND) */
-        /* ========================================================= */
         @keyframes gradient-animation {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -29,10 +30,9 @@
         }
 
         body {
-            /* Các màu chuyển: Xanh Dương Sẫm, Tím Hồng, Vàng Cam, Xanh Lam Nhạt */
             background: linear-gradient(-45deg, #4F46E5, #EC4899, #F59E0B, #60A5FA);
-            background-size: 400% 400%; 
-            animation: gradient-animation 20s ease infinite; 
+            background-size: 400% 400%;
+            animation: gradient-animation 20s ease infinite;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -41,767 +41,974 @@
             overflow-x: hidden;
         }
 
-        /* Thẻ trò chơi chính */
         .quiz-card {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(3px); 
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); 
-            animation: fadeIn 0.5s ease-out;
-            z-index: 10; 
-        }
-
-        /* Wrapper chính */
-        #main-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex-grow: 1;
-            padding: 1rem 0; 
+            background-color: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(2px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            animation: fadeIn 0.45s ease-out;
+            z-index: 10;
         }
 
         .text-glow {
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 6px rgba(0,0,0,0.8);
         }
 
-        /* Hiệu ứng Bong Bóng */
-        .bubbles {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; 
-        }
+        .bubbles { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; overflow:hidden; }
+        .bubbles span { position:absolute; background: rgba(255,255,255,0.35); border-radius:50%; animation: moveUp 25s linear infinite; }
+        @keyframes moveUp { 0% { transform: translateY(100vh) scale(0); opacity:0; } 50% { opacity:1 } 100% { transform: translateY(-100px) scale(1); opacity:0 } }
 
-        .bubbles span {
-            position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 50%; animation: moveUp 25s linear infinite;
-        }
+        #timer-bar-container { height: 10px; background: #e5e7eb; border-radius: 9999px; margin-bottom: 20px; overflow:hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        #timer-bar { width:100%; height:100%; background:#10b981; transition: width linear; }
 
-        @keyframes moveUp {
-            0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-100px) scale(1); opacity: 0; }
-        }
-        
-        .bubbles span:nth-child(1) { left: 10%; width: 20px; height: 20px; animation-duration: 10s; animation-delay: 0s; }
-        .bubbles span:nth-child(2) { left: 20%; width: 40px; height: 40px; animation-duration: 15s; animation-delay: 2s; }
-        .bubbles span:nth-child(3) { left: 35%; width: 15px; height: 15px; animation-duration: 12s; animation-delay: 4s; }
-        .bubbles span:nth-child(4) { left: 50%; width: 30px; height: 30px; animation-duration: 18s; animation-delay: 6s; }
-        .bubbles span:nth-child(5) { left: 65%; width: 25px; height: 25px; animation-duration: 14s; animation-delay: 8s; }
-        .bubbles span:nth-child(6) { left: 80%; width: 50px; height: 50px; animation-duration: 20s; animation-delay: 10s; }
-        .bubbles span:nth-child(7) { left: 90%; width: 10px; height: 10px; animation-duration: 11s; animation-delay: 12s; }
-        .bubbles span:nth-child(8) { left: 5%; width: 45px; height: 45px; animation-duration: 17s; animation-delay: 14s; }
-        .bubbles span:nth-child(9) { left: 75%; width: 35px; height: 35px; animation-duration: 13s; animation-delay: 16s; }
-        .bubbles span:nth-child(10) { left: 45%; width: 22px; height: 22px; animation-duration: 19s; animation-delay: 18s; }
-        .bubbles span:nth-child(11) { left: 25%; width: 18px; height: 18px; animation-duration: 16s; animation-delay: 1s; }
-        .bubbles span:nth-child(12) { left: 55%; width: 33px; height: 33px; animation-duration: 10s; animation-delay: 7s; }
+        .answer-button { transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, background-color 0.12s ease-out; }
+        .answer-button:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
 
-        /* Thanh đếm ngược thời gian (ProgressBar) */
-        #timer-bar-container {
-            height: 10px; background-color: #e5e7eb; border-radius: 9999px; margin-bottom: 20px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        #timer-bar {
-            width: 100%; height: 100%; background-color: #ef4444; transition: width linear; 
-        }
-
-        /* Animation cho các nút trả lời (giống Kahoot) */
-        .answer-button {
-            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, background-color 0.1s ease-out;
-        }
-        .answer-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Nút màu sắc sặc sỡ */
         .color-1 { background-color: #ef4444; } /* Red */
         .color-2 { background-color: #3b82f6; } /* Blue */
         .color-3 { background-color: #10b981; } /* Green */
         .color-4 { background-color: #f59e0b; } /* Yellow */
 
-        /* Modal/Notification */
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); animation: modalFadeIn 0.3s ease-out; display: flex; align-items: center; justify-content: center; z-index: 50;
-        }
-        .modal-content-wrapper {
-            max-height: 90vh; overflow-y: auto;
-        }
-        .modal-content {
-            animation: zoomIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
+        .modal-overlay { background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center; z-index:60; }
+        .modal-content { animation: zoomIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
 
-        /* Keyframes */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0 } to { transform: scale(1); opacity:1 } }
 
-        /* Confetti canvas style (optional override) */
-        .confetti-canvas { }
+        /* leaderboard styling */
+        .leaderboard-row { display:flex; align-items:center; gap:12px; padding:10px; border-radius:12px; }
+        .leaderboard-badge { width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:10px; font-weight:700; color:white; }
+        .leader-rank-1 { background: linear-gradient(90deg,#FFD54A,#FF8A65); }
+        .leader-rank-2 { background: linear-gradient(90deg,#B0BEC5,#90CAF9); }
+        .leader-rank-3 { background: linear-gradient(90deg,#C5E1A5,#81C784); }
+        .leader-rank { background: #94a3b8; }
+
+        /* reduce confetti on small screens */
+        @media (max-width:640px){ .confetti-canvas { opacity:0.95 } }
+
+        /* accessibility focus */
+        .answer-button:focus { outline: 3px solid rgba(59,130,246,0.6); outline-offset: 3px; }
+
+        /* colorful instruction boxes - made bolder/darker */
+        .rule-box { padding: 1rem; border-radius: 0.75rem; display:flex; gap:0.75rem; align-items:flex-start; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+        .rule-icon { font-size: 1.6rem; }
+
+        /* stronger gradients for instruction panels */
+        .rule-blue { background: linear-gradient(90deg,#c7d2fe,#e0e7ff); }
+        .rule-indigo { background: linear-gradient(90deg,#c4b5fd,#e9d5ff); }
+        .rule-yellow { background: linear-gradient(90deg,#fde68a,#fff7cc); }
+        .rule-green { background: linear-gradient(90deg,#bbf7d0,#d1fae5); }
+
+        .rule-title { font-weight: 700; color: #1f2937; }
+        .rule-text { color: #111827; font-weight: 500; }
+
+        /* button gradient emphasized */
+        .btn-confirm { background: linear-gradient(90deg, #16a34a, #059669); }
+        .btn-confirm:hover { background: linear-gradient(90deg, #059669, #047857); }
+
     </style>
-    <!-- Firebase removed (leaderboard disabled) -->
-    <script>
-        // Firebase and leaderboard functionality intentionally removed.
-        // Score persistence / leaderboard has been removed per request.
-    </script>
 </head>
-
 <body class="p-4 md:p-8">
-    <!-- Lớp nền động - Bong bóng -->
-    <div class="bubbles">
-        <span></span><span></span><span></span><span></span><span></span><span></span>
-        <span></span><span></span><span></span><span></span><span></span><span></span>
+    <div class="bubbles z-0">
+        <span style="left:10%; width:20px; height:20px; animation-duration:10s;"></span>
+        <span style="left:20%; width:40px; height:40px; animation-duration:15s;"></span>
+        <span style="left:35%; width:15px; height:15px; animation-duration:12s;"></span>
+        <span style="left:50%; width:30px; height:30px; animation-duration:18s;"></span>
+        <span style="left:65%; width:25px; height:25px; animation-duration:14s;"></span>
+        <span style="left:80%; width:50px; height:50px; animation-duration:20s;"></span>
     </div>
 
-    <!-- Tiêu đề -->
     <header class="w-full text-center py-4 text-white font-header-footer text-2xl md:text-3xl tracking-wider mb-6 z-20 text-glow">
         <h1>HỒ CHÍ MINH - NGƯỜI ĐI TÌM HÌNH CỦA ĐẤT NƯỚC</h1>
     </header>
-    
-    <!-- Wrapper chính cho nội dung có thể cuộn -->
-    <div id="main-wrapper" class="flex-grow">
-        <main id="app-container" class="w-full max-w-4xl quiz-card rounded-xl p-6 md:p-10 shadow-2xl"></main>
+
+    <div id="main-wrapper" class="flex-grow w-full max-w-4xl">
+        <main id="app-container" class="quiz-card rounded-xl p-6 md:p-10 shadow-2xl"></main>
     </div>
 
-
-    <!-- Footer -->
     <footer class="w-full text-center py-4 mt-6 text-white font-header-footer text-xs md:text-sm z-20">
-        <!-- Footer trống -->
+        <!-- Footer -->
     </footer>
 
-    <!-- Modal cho thông báo và kết quả -->
+    <!-- Modals -->
     <div id="modal-container" class="fixed inset-0 modal-overlay hidden">
         <div class="modal-content-wrapper p-4 w-full flex justify-center items-start">
             <div id="modal-content" class="modal-content bg-white p-6 md:p-10 rounded-xl shadow-2xl max-w-lg w-full m-4 font-normal text-center">
                 <h3 id="modal-title" class="text-2xl font-bold mb-4 font-header-footer text-gray-800"></h3>
-                <p id="modal-message" class="text-base mb-6 text-gray-700 font-normal"></p>
-                <p id="modal-score" class="text-xl font-bold mb-6 text-green-600 hidden font-header-footer"></p>
-                <div id="modal-explanation" class="text-sm italic text-gray-600 mt-4 p-3 bg-gray-100 rounded-lg hidden text-left font-normal"></div>
-                <button id="modal-button" class="mt-4 px-6 py-3 rounded-full text-white font-bold transition duration-300 bg-blue-600 hover:bg-blue-700 shadow-lg font-header-footer"></button>
+                <p id="modal-message" class="text-base mb-4 text-gray-700 font-normal"></p>
+                <p id="modal-score" class="text-xl font-bold mb-4 text-green-600 hidden font-header-footer"></p>
+                <div id="modal-correct" class="text-left mb-4 hidden p-3 bg-gray-100 rounded-lg text-gray-800 font-normal"></div>
+                <div id="modal-explanation" class="text-sm italic text-gray-600 mt-2 p-3 bg-gray-50 rounded-lg hidden text-left font-normal"></div>
+                <div id="modal-buttons" class="flex justify-center gap-4 mt-6"></div>
             </div>
         </div>
     </div>
 
+    <!-- Leaderboard Modal -->
+    <div id="leaderboard-modal" class="fixed inset-0 modal-overlay hidden z-70">
+        <div class="p-6 w-full max-w-2xl">
+            <div class="bg-white rounded-xl p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-header-footer">Bảng xếp hạng Top 10</h3>
+                    <button id="close-leaderboard" class="px-3 py-2 rounded-full bg-red-500 text-white hover:bg-red-600"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="leaderboard-list" class="space-y-3 max-h-96 overflow-auto"></div>
+                <div class="text-right mt-4">
+                    <button id="refresh-leaderboard" class="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"><i class="fas fa-sync-alt mr-2"></i> Làm mới</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating controls -->
+    <div class="fixed right-4 bottom-6 z-80 flex flex-col gap-3">
+        <button id="mute-button" class="p-3 rounded-full bg-white shadow-lg" title="Bật/Tắt âm">
+            <i id="mute-icon" class="fas fa-volume-up text-blue-600"></i>
+        </button>
+        <button id="open-leaderboard" class="p-3 rounded-full bg-white shadow-lg" title="Xem Bảng xếp hạng">
+            <i class="fas fa-trophy text-yellow-500"></i>
+        </button>
+    </div>
+
     <script>
-        // =================================================================
-        // KHỞI TẠO BIẾN TOÀN CỤC & HẰNG SỐ
-        // =================================================================
+    // =========================
+    // CONFIG: Firebase placeholder
+    // =========================
+    // If you want server-shared realtime leaderboard, create a Firebase project and paste your config here.
+    // Keep as null to use localStorage fallback.
+    const firebaseConfig = null;
+    let useFirebase = false;
+    if (firebaseConfig) {
+        try { firebase.initializeApp(firebaseConfig); useFirebase = true; } catch(e) { console.warn('Firebase init failed', e); useFirebase = false; }
+    }
 
-        const GAME_STATE = {
-            NAME_INPUT: 'nameInput',
-            INSTRUCTIONS: 'instructions',
-            QUIZ: 'quiz',
-            FEEDBACK: 'feedback',
-            RESULTS: 'results',
-        };
+    // =========================
+    // STATE & ELEMENTS
+    // =========================
+    const GAME_STATE = { NAME_INPUT: 'nameInput', INSTRUCTIONS: 'instructions', QUIZ: 'quiz', ROUND_END: 'roundEnd', RESULTS: 'results' };
+    const appContainer = document.getElementById('app-container');
+    const modalContainer = document.getElementById('modal-container');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const modalScore = document.getElementById('modal-score');
+    const modalExplanation = document.getElementById('modal-explanation');
+    const modalCorrect = document.getElementById('modal-correct');
+    const modalButtons = document.getElementById('modal-buttons');
 
-        const MAX_TIME_PER_QUESTION = 40; 
-        const MAX_POINTS_PER_QUESTION = 1000;
-        const appContainer = document.getElementById('app-container');
-        const modalContainer = document.getElementById('modal-container');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const modalScore = document.getElementById('modal-score');
-        const modalExplanation = document.getElementById('modal-explanation');
-        const modalButton = document.getElementById('modal-button');
+    const leaderboardModal = document.getElementById('leaderboard-modal');
+    const leaderboardList = document.getElementById('leaderboard-list');
+    const openLeaderboardBtn = document.getElementById('open-leaderboard');
+    const closeLeaderboardBtn = document.getElementById('close-leaderboard');
+    const refreshLeaderboardBtn = document.getElementById('refresh-leaderboard');
+    const muteButton = document.getElementById('mute-button');
+    const muteIcon = document.getElementById('mute-icon');
 
-        let gameState = GAME_STATE.NAME_INPUT;
-        let playerName = '';
-        let totalScore = 0;
-        let questionSet = [];
-        let currentQuestionIndex = 0;
-        let timerInterval = null;
-        let startTime = 0;
-        let isAnswered = false;
+    let gameState = GAME_STATE.NAME_INPUT;
+    let playerName = '';
+    let totalScore = 0;
+    let round = 1;
+    let roundQuestions = {1: [], 2: []};
+    let currentQuestionIndex = 0;
+    let isAnswered = false;
+    let startTime = 0;
+    let timerInterval = null;
+    let isMuted = false;
 
-        // =================================================================
-        // DỮ LIỆU CÂU HỎI (ĐÃ TĂNG VÀ BỔ SUNG THÊM 8 CÂU THEO YÊU CẦU)
-        // =================================================================
-        // Hiện tại có 20 câu tổng cộng sau khi bổ sung.
-        const QUIZ_DATA_RAW = [
-            { id: 1, q: "Tư tưởng Hồ Chí Minh là sự kết tinh của yếu tố nào sau đây?", a: ["Văn hóa Việt Nam", "Văn hóa phương Đông và phương Tây", "Chủ nghĩa Mác – Lênin", "Tất cả các yếu tố trên"], correctIndex: 3, info: "Tư tưởng Hồ Chí Minh kết hợp văn hóa dân tộc, tinh hoa Đông – Tây, tư tưởng cách mạng Pháp – Mỹ và chủ nghĩa Mác – Lênin, cùng với phẩm chất cá nhân của Người." },
-            { id: 2, q: "Theo Bác, ưu điểm của học thuyết Khổng Tử là gì?", a: ["Lòng nhân ái", "Tu dưỡng đạo đức cá nhân", "Tự do cá nhân", "Phép biện chứng"], correctIndex: 1, info: "Bác nêu rõ: “Học thuyết Khổng Tử có ưu điểm là sự tu dưỡng đạo đức cá nhân.”" },
-            { id: 3, q: "Điểm Người đánh giá cao nhất ở chủ nghĩa Mác là:", a: ["Chính sách dân sinh", "Phương pháp làm việc biện chứng", "Tinh thần bác ái", "Lòng yêu nước"], correctIndex: 1, info: "Theo lời Bác: “Chủ nghĩa Mác có ưu điểm là phương pháp làm việc biện chứng.”" },
-            { id: 4, q: "Hồ Chí Minh khẳng định mục tiêu lớn nhất của mọi học thuyết tiến bộ là:", a: ["Xây dựng thể chế mới", "Giải phóng con người, mưu hạnh phúc cho mọi người", "Nâng cao kinh tế", "Phát triển khoa học"], correctIndex: 1, info: "Bác nhận xét rằng các học thuyết lớn đều “đều nhằm mưu cầu hạnh phúc cho loài người”." },
-            { id: 5, q: "Con đường cứu nước mà Hồ Chí Minh lựa chọn là gì?", a: ["Đi sang phương Đông", "Đi sang phương Tây", "Ở lại trong nước", "Tìm sự giúp đỡ từ Trung Quốc"], correctIndex: 1, info: "Người quyết tâm đi sang phương Tây (Pháp) để tìm hiểu nền văn minh, chính trị và cách mạng của các nước tư bản, từ đó tìm ra con đường cứu nước đúng đắn." },
-            { id: 6, q: "Từ năm 1912-1917, Hồ Chí Minh làm việc tại đâu?", a: ["Anh", "Mỹ", "Pháp", "Đức"], correctIndex: 0, info: "Trong giai đoạn này, Người sống và làm việc ở Anh (London) và sau đó là Mỹ, trước khi trở lại Pháp." },
-            { id: 7, q: "Hồ Chí Minh không tán thành con đường cứu nước của Phan Châu Trinh và Phan Bội Châu vì:", a: ["Hai ông không quan tâm đến truyền bá chữ quốc ngữ.", "Hai ông đều chủ trương đấu tranh bạo lực.", "Con đường của họ phụ thuộc vào thế lực bên ngoài.", "Hai ông không quan tâm đến tổ chức cách mạng ở nước ngoài."], correctIndex: 2, info: "Tuy khâm phục Phan Châu Trinh, Phan Bội Châu nhưng Người không tán thành con đường của họ: Phan Châu Trinh “xin giặc rủ lòng thương”, Phan Bội Châu “đuổi hổ cửa trước, rước beo cửa sau”. Vì thế Người quyết tâm tìm một con đường cứu nước mới." },
-            { id: 8, q: "Đặc điểm nào KHÔNG thuộc phong cách nghệ thuật của thơ Hồ Chí Minh?", a: ["Ngôn ngữ cô đọng, giàu tính tượng trưng", "Phong vị cổ điển kết hợp hơi thở hiện đại", "Hình ảnh giản dị, gần gũi, giàu nhân văn", "Sử dụng hoàn toàn phong cách lãng mạn Tây phương"], correctIndex: 3, info: "Thơ Hồ Chí Minh mang đậm phong vị cổ điển của thơ Đường, đồng thời thấm đẫm tinh thần hiện đại, giản dị và nhân văn. Phong cách thơ của Người là sự kết hợp nhuần nhuyễn giữa cổ điển và hiện đại, không 'hoàn toàn' lãng mạn Tây phương." },
-            { id: 9, q: "Điểm tương đồng về vai trò của Người trong Cách mạng tháng Tám năm 1945, kháng chiến chống Pháp (1945-1954) và kháng chiến chống Mỹ (1954-1975) là", a: ["lãnh đạo cách mạng Việt Nam thực hiện kháng chiến và kiến quốc.", "lãnh đạo cách mạng Việt Nam thực hiện nhiệm vụ xây dựng chế độ mới.", "lãnh đạo cuộc cách mạng giải phóng và bảo vệ tổ quốc.", "lãnh đạo cách mạng Việt Nam thực hiện nhiệm vụ thống nhất đất nước."], correctIndex: 0, info: "Vai trò của Người xuyên suốt là lãnh đạo toàn dân thực hiện đồng thời hai nhiệm vụ chiến lược: kháng chiến chống ngoại xâm và xây dựng đất nước." },
-            { id: 10, q: "\"Hồ Chí Minh - Người đi tìm hình của đất nước\" là tên một bài thơ của tác giả nào?", a: ["Tố Hữu", "Xuân Diệu", "Chế Lan Viên", "Nguyễn Đình Thi"], correctIndex: 2, info: "Đây là bài thơ nổi tiếng được Chế Lan Viên sáng tác, thể hiện hành trình tìm đường cứu nước đầy gian khổ và vĩ đại của Hồ Chủ Tịch." },
-            { id: 11, q: "Hồ Chí Minh lấy bí danh 'Nguyễn Ái Quốc' khi nào?", a: ["1911", "1917", "1920", "1930"], correctIndex: 2, info: "Hồ Chí Minh sử dụng bí danh Nguyễn Ái Quốc trong những năm hoạt động trước Cách mạng tháng Tám, đặc biệt từ khoảng 1920 khi tham gia phong trào quốc tế và cách mạng." },
-            { id: 12, q: "Điều nào sau đây là phẩm chất nổi bật của Hồ Chí Minh trong lãnh đạo?", a: ["Tính nhân văn và khiêm tốn", "Ham danh vọng", "Thiếu kiên nhẫn", "Không quan tâm đến nhân dân"], correctIndex: 0, info: "Hồ Chí Minh nổi bật với phẩm chất nhân văn, giản dị, gần gũi với nhân dân và khiêm tốn trong lãnh đạo." },
+    const MAX_POINTS_PER_QUESTION = 1000;
 
-            /* --- BẮT ĐẦU: 8 câu mới do bạn cung cấp (đã chuẩn hóa và thêm giải thích) --- */
-            { id: 13, q: "Ai là người hướng cho Nguyễn Tất Thành đến việc tìm con đường cứu nước thông qua tìm hiểu văn hóa, ngôn ngữ của kẻ thù xâm lược là Pháp?", a: ["Phan Bội Châu", "Phan Châu Trinh", "Nguyễn Sinh Sắc", "Hoàng Hoa Thám"], correctIndex: 2, info: "Quyết định ra đi tìm đường cứu nước của Nguyễn Tất Thành là kết quả của sự kết hợp giữa các điều kiện khách quan và những yếu tố chủ quan. Trong đó, sự giáo dục và định hướng của cụ Phó bảng Nguyễn Sinh Sắc đối với con trai đóng vai trò hết sức quan trọng: ngoài hun đúc quyết tâm và ý chí cứu nước, cụ còn gợi mở hướng đi tìm đường cứu nước — muốn đánh Pháp phải hiểu nước Pháp, muốn hiểu nước Pháp phải học tiếng Pháp." },
-            { id: 14, q: "Chàng thanh niên trẻ Nguyễn Tất Thành nhận định con đường cứu nước của cụ Phan Bội Châu là “đưa hổ cửa trước, rước beo cửa sau” vì cụ Phan Bội Châu dựa vào cường quốc nào để mượn sức đánh Pháp?", a: ["Nhật Bản", "Trung Hoa", "Đức", "Mỹ"], correctIndex: 0, info: "Nguyễn Tất Thành cho rằng Phan Bội Châu hy vọng Nhật giúp ta đuổi Pháp, nên ví von đó là 'đưa hổ cửa trước, rước beo cửa sau' — ý chỉ nguy cơ bị lệ thuộc vào thế lực khác." },
-            { id: 15, q: "Nguyễn Ái Quốc là một trong những nhà sáng lập ra Đảng Cộng sản của quốc gia Tây Âu nào vào năm 1920?", a: ["Anh", "Pháp", "Đức", "Tây Ban Nha"], correctIndex: 1, info: "Ngày 29-12-1920, tại Đại hội Tours của Đảng Xã hội Pháp, Nguyễn Ái Quốc bỏ phiếu ủng hộ gia nhập Quốc tế thứ III (Quốc tế Cộng sản). Sự kiện này đánh dấu mốc quan trọng trong hoạt động chính trị của Người tại Pháp." },
-            { id: 16, q: "Nguyễn Ái Quốc đã viết vở kịch “Con rồng tre” để vạch trần bộ mặt bán nước hại dân của vua nhà Nguyễn nào?", a: ["Tự Đức", "Khải Định", "Bảo Đại", "Đồng Khánh"], correctIndex: 1, info: "Năm 1922, nhân dịp vua Khải Định tới Pháp tham dự một sự kiện, Nguyễn Ái Quốc viết vở kịch 'Con rồng tre' để tố cáo bộ mặt bán nước hại dân của một số vua quan tay sai, phản ánh thái độ phê phán chế độ phong kiến thân Pháp." },
-            { id: 17, q: "Khi trở về Tổ quốc sau 30 năm bôn ba (1911-1941), Bác đã đặt chân lên địa phương nào đầu tiên?", a: ["Cao Bằng", "Hà Giang", "Lạng Sơn", "Lào Cai"], correctIndex: 0, info: "Sau 30 năm bôn ba tìm đường cứu nước, một trong những nơi Bác đến và hoạt động sớm là Cao Bằng, địa phương có ý nghĩa quan trọng trong những ngày đầu của kháng chiến." },
-            { id: 18, q: "Nguyễn Tất Thành đã giảng dạy những ngôn ngữ nào tại trường Dục Thanh?", a: ["Chữ Hán, chữ Nôm và tiếng Pháp", "Chữ Hán, tiếng Pháp và tiếng Anh", "Chữ Quốc ngữ, chữ Hán và tiếng Pháp", "Chữ Quốc ngữ, tiếng Pháp và tiếng Anh"], correctIndex: 2, info: "Khi dạy ở trường Dục Thanh, Nguyễn Tất Thành phụ trách Quốc văn (chữ Quốc ngữ), Hán văn và khi cần đã dạy thay môn tiếng Pháp — do đó đáp án 'Chữ Quốc ngữ, chữ Hán và tiếng Pháp' là chính xác." },
-            { id: 19, q: "Phong trào “Học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh” có ý nghĩa chính là:", a: ["Học lý thuyết chính trị thuần túy", "Áp dụng kỷ luật nghiêm ngặt", "Biến tấm gương của Bác thành hành động thiết thực trong đời sống", "Tạo phong trào thi đua hình thức"], correctIndex: 2, info: "Phong trào này nhấn mạnh việc học và thực hành những điều giản dị, thiết thực mà Bác dạy: làm việc, phục vụ nhân dân, đạo đức, lối sống giản dị và trách nhiệm xã hội." },
-            { id: 20, q: "Quê hương của Hồ Chí Minh (Nguyễn Sinh Cung / Nguyễn Tất Thành) nằm ở tỉnh nào?", a: ["Hà Nội", "Nghệ An", "Thừa Thiên - Huế", "Quảng Nam"], correctIndex: 1, info: "Hồ Chí Minh sinh ở làng Kim Liên, xã Nam Đàn, tỉnh Nghệ An — đây là quê hương quê nhà của Người." }
-            /* --- KẾT THÚC 8 câu mới --- */
-        ];
+    // =========================
+    // QUESTIONS: merged 40 w/ difficulty
+    // =========================
+    // NOTE: Question 1 has been updated: correct answer is Chủ nghĩa dân tộc (option C).
+    const ORIGINAL_QUESTIONS = [
+        { id: 1, q: `Nguyễn Ái Quốc đã đưa ra nhận định như sau về chủ nghĩa nào?
+"… là động lực lớn của đất nước. Chính nó đã gây nên cuộc nổi dậy chống thuế năm 1908, nó dạy cho những người cu li biết phản đối, nó làm cho những người "nhà quê" phản đối ngầm trước thuế tạp dịch và thuế muối. Cũng … đã luôn luôn thúc đẩy các nhà buôn An Nam cạnh tranh với người Pháp và người Trung Quốc; nó đã thúc giục thanh niên bãi khóa, làm cho những nhà cách mạng trốn sang Nhật Bản và làm vua Duy Tân mưu tính khởi nghĩa năm 1917"`, a:["Chủ nghĩa tự do","Chủ nghĩa cộng sản","Chủ nghĩa dân tộc","Chủ nghĩa yêu nước"], correctIndex: 2, info:"Đáp án: Chủ nghĩa dân tộc. Trong đoạn trích này, Nguyễn Ái Quốc nhấn mạnh vai trò của tinh thần dân tộc (ý thức yêu nước/dân tộc) như một động lực lịch sử.", difficulty: "hard" },
+        { id: 2, q: "Theo Bác, ưu điểm của học thuyết Khổng Tử là gì?", a:["Lòng nhân ái","Tu dưỡng đạo đức cá nhân","Tự do cá nhân","Phép biện chứng"], correctIndex:1, info:"Bác nêu rõ: “Học thuyết Khổng Tử có ưu điểm là sự tu dưỡng đạo đức cá nhân.”", difficulty: "hard" },
+        { id: 3, q: "Điểm Người đánh giá cao nhất ở chủ nghĩa Mác là:", a:["Chính sách dân sinh","Phương pháp làm việc biện chứng","Tinh thần bác ái","Lòng yêu nước"], correctIndex:1, info:"Theo lời Bác: “Chủ nghĩa Mác có ưu điểm là phương pháp làm việc biện chứng.”", difficulty: "hard" },
+        { id: 4, q: "Hồ Chí Minh khẳng định mục tiêu lớn nhất của mọi học thuyết tiến bộ là:", a:["Xây dựng thể chế mới","Giải phóng con người, mưu hạnh phúc cho mọi người","Nâng cao kinh tế","Phát triển khoa học"], correctIndex:1, info:"Bác nhận xét rằng các học thuyết lớn đều 'đều nhằm mưu cầu hạnh phúc cho loài người'.", difficulty: "hard" },
+        { id: 5, q: "Con đường cứu nước mà Hồ Chí Minh lựa chọn là gì?", a:["Đi sang phương Đông","Đi sang phương Tây","Ở lại trong nước","Tìm sự giúp đỡ từ Trung Quốc"], correctIndex:1, info:"Người quyết tâm đi sang phương Tây (Pháp) để tìm hiểu nền văn minh, chính trị và cách mạng của các nước tư bản.", difficulty: "hard" },
+        { id: 6, q: "Từ năm 1912-1917, Hồ Chí Minh làm việc tại đâu?", a:["Anh","Mỹ","Pháp","Đức"], correctIndex:0, info:"Trong giai đoạn này, Người sống và làm việc ở Anh (London) và sau đó là Mỹ, trước khi trở lại Pháp.", difficulty: "easy" },
+        { id: 7, q: "Hồ Chí Minh không tán thành con đường cứu nước của Phan Châu Trinh và Phan Bội Châu vì:", a:["Hai ông không quan tâm đến truyền bá chữ quốc ngữ.","Hai ông đều chủ trương đấu tranh bạo lực.","Con đường của họ phụ thuộc vào thế lực bên ngoài.","Hai ông không quan tâm đến tổ chức cách mạng ở nước ngoài."], correctIndex:2, info:"Tuy khâm phục Phan Châu Trinh, Phan Bội Châu nhưng Người không tán thành con đường của họ: Phan Châu Trinh 'xin giặc rủ lòng thương', Phan Bội Châu 'đuổi hổ cửa trước, rước beo cửa sau'.", difficulty: "hard" },
+        { id: 8, q: "Đặc điểm nào KHÔNG thuộc phong cách nghệ thuật của thơ Hồ Chí Minh?", a:["Ngôn ngữ cô đọng, giàu tính tượng trưng","Phong vị cổ điển kết hợp hơi thở hiện đại","Hình ảnh giản dị, gần gũi, giàu nhân văn","Sử dụng hoàn toàn phong cách lãng mạn Tây phương"], correctIndex:3, info:"Thơ Hồ Chí Minh là sự kết hợp nhuần nhuyễn giữa cổ điển và hiện đại, không 'hoàn toàn' lãng mạn Tây phương.", difficulty: "easy" },
+        { id: 9, q: "Điểm tương đồng về vai trò của Người trong Cách mạng tháng Tám năm 1945, kháng chiến chống Pháp (1945-1954) và kháng chiến chống Mỹ (1954-1975) là", a:["lãnh đạo cách mạng Việt Nam thực hiện kháng chiến và kiến quốc.","lãnh đạo cách mạng Việt Nam thực hiện nhiệm vụ xây dựng chế độ mới.","lãnh đạo cuộc cách mạng giải phóng và bảo vệ tổ quốc.","lãnh đạo cách mạng Việt Nam thực hiện nhiệm vụ thống nhất đất nước."], correctIndex:0, info:"Vai trò của Người xuyên suốt là lãnh đạo toàn dân thực hiện đồng thời hai nhiệm vụ chiến lược.", difficulty: "hard" },
+        { id: 10, q: "\"Người đi tìm hình của nước\" là tên một bài thơ của tác giả nào?", a:["Tố Hữu","Xuân Diệu","Chế Lan Viên","Nguyễn Đình Thi"], correctIndex:2, info:"Đây là bài thơ nổi tiếng được Chế Lan Viên sáng tác.", difficulty: "easy" },
+        { id: 11, q: "Hồ Chí Minh lấy bí danh 'Nguyễn Ái Quốc' khi nào?", a:["1911","1917","1919","1930"], correctIndex:2, info:"Nguyễn Ái Quốc bắt đầu sử dụng bí danh này trong những năm hoạt động sớm ở châu Âu (gần năm 1919).", difficulty: "easy" },
+        { id: 12, q: "Điều nào sau đây là phẩm chất nổi bật của Hồ Chí Minh trong lãnh đạo?", a:["Tính nhân văn và khiêm tốn","Ham danh vọng","Thiếu kiên nhẫn","Không quan tâm đến nhân dân"], correctIndex:0, info:"Hồ Chí Minh nổi bật với phẩm chất nhân văn, giản dị và khiêm tốn.", difficulty: "easy" },
+        { id: 13, q: "Ai là người hướng cho Nguyễn Tất Thành đến việc tìm con đường cứu nước thông qua học tiếng Pháp và tìm hiểu Pháp?", a:["Phan Bội Châu","Phan Châu Trinh","Nguyễn Sinh Sắc","Hoàng Hoa Thám"], correctIndex:2, info:"Cụ Phó bảng Nguyễn Sinh Sắc hun đúc quyết tâm và gợi mở hướng đi tìm đường cứu nước.", difficulty: "hard" },
+        { id: 14, q: "Nguyễn Tất Thành ví con đường cứu nước của Phan Bội Châu như 'đưa hổ cửa trước, rước beo cửa sau' vì Phan Bội Châu dựa vào cường quốc nào?", a:["Nhật Bản","Trung Hoa","Đức","Mỹ"], correctIndex:0, info:"Phan Bội Châu hy vọng Nhật giúp đuổi Pháp nên Nguyễn Tất Thành cảnh giác.", difficulty: "easy" },
+        { id: 15, q: "Nguyễn Ái Quốc là một trong những người bỏ phiếu ủng hộ gia nhập Quốc tế thứ III của Đảng Xã hội nước nào vào năm 1920?", a:["Anh","Pháp","Đức","Tây Ban Nha"], correctIndex:1, info:"Ngày 29-12-1920, tại Đại hội Tours của Đảng Xã hội Pháp, Nguyễn Ái Quốc ủng hộ gia nhập Quốc tế thứ III.", difficulty: "easy" },
+        { id: 16, q: "Nguyễn Ái Quốc đã viết vở kịch 'Con rồng tre' để vạch trần vua nhà Nguyễn nào?", a:["Tự Đức","Khải Định","Bảo Đại","Đồng Khánh"], correctIndex:1, info:"Năm 1922, Nguyễn Ái Quốc viết vở kịch 'Con rồng tre' tố cáo bộ mặt bán nước.", difficulty: "hard" },
+        { id: 17, q: "Khi trở về Tổ quốc sau 30 năm bôn ba (1911-1941), Bác đã đặt chân lên địa phương nào đầu tiên?", a:["Cao Bằng","Hà Giang","Lạng Sơn","Lào Cai"], correctIndex:0, info:"Một trong những nơi Bác đến và hoạt động sớm là Cao Bằng.", difficulty: "easy" },
+        { id: 18, q: "Nguyễn Tất Thành đã giảng dạy những môn nào tại trường Dục Thanh?", a:["Chữ Hán, chữ Nôm và tiếng Pháp","Chữ Hán, tiếng Pháp và tiếng Anh","Chữ Quốc ngữ, chữ Hán và tiếng Pháp","Chữ Quốc ngữ, tiếng Pháp và tiếng Anh"], correctIndex:2, info:"Người phụ trách Quốc văn (chữ Quốc ngữ), Hán văn và khi cần đã dạy tiếng Pháp.", difficulty: "easy" },
+        { id: 19, q: "Phong trào 'Học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh' nhằm mục đích gì?", a:["Học lý thuyết chính trị thuần túy","Áp dụng kỷ luật nghiêm ngặt","Biến tấm gương của Bác thành hành động thiết thực trong đời sống","Tạo phong trào thi đua hình thức"], correctIndex:2, info:"Phong trào nhấn mạnh việc học và thực hành những điều giản dị, thiết thực mà Bác dạy.", difficulty: "easy" },
+        { id: 20, q: "Quê hương của Hồ Chí Minh nằm ở tỉnh nào?", a:["Hà Nội","Nghệ An","Thừa Thiên - Huế","Quảng Nam"], correctIndex:1, info:"Hồ Chí Minh sinh ở làng Kim Liên, xã Nam Đàn, tỉnh Nghệ An.", difficulty: "easy" }
+    ];
 
-        function generateQuestionSet() {
-            // Lấy tất cả câu hỏi, trộn ngẫu nhiên
-            const shuffledQuestions = shuffle([...QUIZ_DATA_RAW]);
-            return shuffledQuestions;
+    const NEW_QUESTIONS = [
+        { id: 21, q: "Tên khai sinh của Chủ tịch Hồ Chí Minh là gì?", a:["Nguyễn Tất Thành","Nguyễn Sinh Cung","Nguyễn Ái Quốc","Nguyễn Sinh Sắc"], correctIndex:1, info:"Tên khai sinh là Nguyễn Sinh Cung.", difficulty: "easy" },
+        { id: 22, q: "Hồ Chí Minh ra đi tìm đường cứu nước vào ngày nào?", a:["5/6/1911","3/2/1911","2/9/1911","19/5/1911"], correctIndex:0, info:"Ngày 5–6–1911, Người lên tàu Đô đốc Latouche Tréville tại Bến cảng Nhà Rồng.", difficulty: "easy" },
+        { id: 23, q: "Hành trình tìm đường cứu nước của Nguyễn Ái Quốc và Phan Bội Châu có điểm tương đồng về:", a:["Hướng đi tìm đường cứu nước.","Lựa chọn khuynh hướng cứu nước.","Chủ trương dựa vào Nhật Bản.","Mục đích cao nhất và cuối cùng."], correctIndex:3, info:"Mục đích cao nhất và cuối cùng của hai người là đem lại độc lập, tự do cho đất nước.", difficulty: "hard" },
+        { id: 24, q: "Nguyễn Ái Quốc tiếp cận chủ nghĩa Cộng sản qua tác phẩm nào?", a:["Tư bản luận","Nhà nước và Cách mạng","Sơ thảo lần thứ nhất những Luận cương về vấn đề dân tộc và thuộc địa","Chống Đuy-rinh"], correctIndex:2, info:"Năm 1920, Nguyễn Ái Quốc đọc 'Sơ thảo...' của Lênin dẫn đến chủ nghĩa cộng sản.", difficulty: "easy" },
+        { id: 25, q: "Nguyên nhân quyết định thành công của hội nghị thành lập Đảng Cộng sản Việt Nam là?", a:["Do tài năng, uy tín của Nguyễn Ái Quốc.","Sự chỉ đạo kịp thời của Quốc tế thứ hai.","Sự giúp đỡ của Liên Xô và Quốc tế thứ ba.","Nguyện vọng của các tổ chức cộng sản."], correctIndex:2, info:"Yếu tố quốc tế và hỗ trợ của Quốc tế Cộng sản góp phần quan trọng.", difficulty: "hard" },
+        { id: 26, q: "Tên 'Việt Minh' được lấy vào thời gian nào?", a:["5/1940","5/1941","6/1941","6/1940"], correctIndex:1, info:"Việt Minh được thành lập và lấy tên vào tháng 5/1941.", difficulty: "easy" },
+        { id: 27, q: "Từ năm 1945 đến năm 1969, Hồ Chí Minh đảm nhận cương vị nào sau đây?", a:["Chủ tịch nước Cộng hòa xã hội chủ nghĩa Việt Nam.","Tổng Bí thư nước Việt Nam Dân chủ Cộng hòa.","Tổng Bí thư nước Cộng hòa xã hội chủ nghĩa Việt Nam.","Chủ tịch nước Việt Nam Dân chủ Cộng hòa."], correctIndex:3, info:"Ông là Chủ tịch nước Việt Nam Dân chủ Cộng hòa.", difficulty: "easy" },
+        { id: 28, q: "“Nhật ký trong tù” được sáng tác trong hoàn cảnh nào?", a:["Khi ở Liên Xô","Khi ở Pác Bó","Khi ở Trung Quốc","Khi ở Pháp"], correctIndex:2, info:"Tập thơ được viết bằng chữ Hán trong thời gian Người bị tù ở Trung Quốc.", difficulty: "hard" },
+        { id: 29, q: "Phong cách thơ Hồ Chí Minh mang đặc điểm nổi bật nào?", a:["Dứt khoát","Cô đọng, súc tích","Hòa quyện cổ điển và hiện đại","Lãng mạn"], correctIndex:2, info:"Thơ của Bác mang đậm phong vị cổ điển và tinh thần hiện đại.", difficulty: "hard" },
+        { id: 30, q: "Hình tượng xuất hiện nhiều nhất trong thơ Hồ Chí Minh là gì?", a:["Trăng","Hoa","Núi","Sông"], correctIndex:0, info:"Trăng là hình tượng xuất hiện nhiều, ví dụ 'Ngắm trăng'.", difficulty: "easy" },
+
+        { id: 31, q: "Hồ Chí Minh xuất thân trong một gia đình:", a:["Nhà nho yêu nước.","Tiểu tư sản.","Nông dân nghèo.","Tư sản dân tộc."], correctIndex:0, info:"Cha của Người, Nguyễn Sinh Sắc, là nhà nho yêu nước.", difficulty: "easy" },
+        { id: 32, q: "Sự kiện nào đánh dấu Người tìm ra con đường giải phóng dân tộc đúng đắn?", a:["Gửi 'Yêu sách của nhân dân An Nam' tới Versailles","Tham gia Đảng xã hội Pháp","Đọc 'Sơ thảo ...' của Lênin","Gia nhập Đảng Cộng Sản Pháp"], correctIndex:2, info:"Năm 1920, đọc 'Sơ thảo...' của Lênin đã giải đáp con đường giành độc lập.", difficulty: "easy" },
+        { id: 33, q: "Trong giai đoạn 1921–1930, hình thức hoạt động cách mạng của Nguyễn Ái Quốc là gì?", a:["Đấu tranh vũ trang","Biểu tình","Viết báo, xuất bản sách","Khởi nghĩa"], correctIndex:2, info:"Giai đoạn này Người truyền bá chủ nghĩa Mác-Lênin qua viết báo, xuất bản.", difficulty: "hard" },
+        { id: 34, q: "Sự kiện nào đánh dấu Nguyễn Ái Quốc bước vào thời kỳ trực tiếp lãnh đạo cách mạng?", a:["Thành lập Việt Minh (5/1941)","Trở về Tổ quốc (1/1941)","Hội nghị lần VIII BCHTW (5/1941)","Thành lập Đội VN tuyên truyền giải phóng quân (12/1944)"], correctIndex:0, info:"Việc thành lập Việt Minh khẳng định Người bước vào vai trò lãnh đạo trực tiếp.", difficulty: "hard" },
+        { id: 35, q: "Nguyễn Ái Quốc lấy tên Hồ Chí Minh lần đầu tiên khi:", a:["Sang Xiêm hoạt động (1928)","Bị chính quyền Anh bắt ở Hồng Kông (1931)","Từ Liên Xô đến Trung Quốc để chuẩn bị về nước (1938)","Sang Trung Quốc để vận động ngoại giao (1942)"], correctIndex:2, info:"Tên Hồ Chí Minh được sử dụng trong thời kỳ trước khi chuẩn bị về nước.", difficulty: "hard" },
+        { id: 36, q: "Bản Tuyên ngôn Độc lập có ý nghĩa nữa là:", a:["Khẳng định chủ nghĩa tư bản hết vai trò","Báo hiệu ra đời nhà nước công nông đầu tiên ở Đông Nam Á","Tuyên bố chiến tranh với Pháp","Khẳng định kết thúc quân chủ trên toàn thế giới"], correctIndex:1, info:"Tuyên ngôn khai sinh nhà nước công-nông đầu tiên ở khu vực.", difficulty: "hard" },
+        { id: 37, q: "Điều gì khiến Người không tán thành con đường của Phan Bội Châu và Phan Châu Trinh?", a:["Không chú trọng truyền bá chữ quốc ngữ","Chủ trương đấu tranh bạo lực","Phụ thuộc thế lực bên ngoài","Không quan tâm tổ chức cách mạng ở nước ngoài"], correctIndex:2, info:"Người cho rằng con đường của họ có thể dẫn đến lệ thuộc vào thế lực khác.", difficulty: "hard" },
+        { id: 38, q: "Đặc điểm nào KHÔNG thuộc phong cách nghệ thuật của thơ Hồ Chí Minh?", a:["Ngôn ngữ cô đọng, giàu tính tượng trưng","Phong vị cổ điển kết hợp hơi thở hiện đại","Hình ảnh giản dị, gần gũi, giàu nhân văn","Sử dụng hoàn toàn phong cách lãng mạn Tây phương"], correctIndex:3, info:"Thơ Bác không sử dụng hoàn toàn phong cách lãng mạn Tây phương.", difficulty: "easy" },
+        { id: 39, q: "Điểm tương đồng về vai trò của Người trong các cuộc cách mạng là:", a:["Lãnh đạo cách mạng thực hiện kháng chiến và kiến quốc.","Lãnh đạo xây dựng chế độ mới.","Lãnh đạo cuộc cách mạng giải phóng và bảo vệ Tổ quốc.","lãnh đạo vừa đấu tranh vừa xây dựng CNXH."], correctIndex:0, info:"Vai trò xuyên suốt: lãnh đạo nhân dân kháng chiến và kiến quốc.", difficulty: "hard" },
+        { id: 40, q: "Hồ Chí Minh KHÔNG để lại di sản về:", a:["Nghệ thuật quân sự","Lịch sử","Tư tưởng","Văn học"], correctIndex:0, info:"So với các lĩnh vực khác, 'nghệ thuật quân sự' không phải là di sản chủ yếu được gán trực tiếp cho Người.", difficulty: "hard" }
+    ];
+
+    const ALL_QUESTIONS = [...ORIGINAL_QUESTIONS, ...NEW_QUESTIONS];
+
+    function partitionByDifficulty(arr) {
+        const easy = arr.filter(q => q.difficulty === 'easy');
+        const hard = arr.filter(q => q.difficulty === 'hard');
+        return { easy, hard };
+    }
+
+    // =========================
+    // AUDIO - Brighter Piano + FX
+    // =========================
+    let isBgmPlaying = false;
+    let bgmLoop = null;
+    const fxReverb = new Tone.Reverb({ decay: 1.2, wet: 0.22 }).toDestination();
+
+    const pianoSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.01, decay: 0.6, sustain: 0.5, release: 1.0 }
+    }).connect(fxReverb);
+    pianoSynth.volume.value = -18;
+
+    const correctSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'sine' }, envelope: { attack: 0.005, decay: 0.12, sustain: 0, release: 0.2 }
+    }).connect(fxReverb);
+    correctSynth.volume.value = -8;
+
+    const wrongSynth = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.25 } }).toDestination();
+    wrongSynth.volume.value = -12;
+
+    function playApplause() {
+        if (isMuted) return;
+        const now = Tone.now();
+        correctSynth.triggerAttackRelease(["E5","G5","C6"], "8n", now, 0.9);
+        correctSynth.triggerAttackRelease("C6", "8n", now + 0.12, 0.8);
+        try { launchConfetti(3000, 140); } catch(e) {}
+    }
+
+    function playSadHorn() {
+        if (isMuted) return;
+        const horn = new Tone.Synth({ oscillator:{ type:'sawtooth' }, envelope:{ attack:0.02, decay:0.5, sustain:0.1, release:0.6 }}).toDestination();
+        horn.volume.value = -10;
+        const now = Tone.now();
+        horn.triggerAttackRelease("G4", "8n", now);
+        horn.triggerAttackRelease("Eb4", "8n", now + 0.15);
+        setTimeout(()=> horn.dispose(), 800);
+    }
+
+    function playTeoTeo() {
+        if (isMuted) return;
+        const s = new Tone.Synth({ oscillator:{ type:'triangle' }, envelope:{ attack:0.001, decay:0.08, sustain:0, release:0.05 }}).toDestination();
+        s.volume.value = -8;
+        const now = Tone.now();
+        s.triggerAttackRelease("C6", "32n", now);
+        s.triggerAttackRelease("B5", "32n", now + 0.07);
+        s.triggerAttackRelease("G5", "32n", now + 0.14);
+        setTimeout(()=> s.dispose(), 400);
+    }
+
+    function playFanfare() {
+        if (isMuted) return;
+        const fan = new Tone.PolySynth(Tone.Synth, { oscillator:{ type:'triangle' }, envelope:{ attack:0.01, decay:0.4, sustain:0.2, release:0.6 } }).toDestination();
+        fan.volume.value = -6;
+        const now = Tone.now();
+        fan.triggerAttackRelease(["C5","E5","G5"], "8n", now);
+        fan.triggerAttackRelease(["G5","B5","D6"], "8n", now + 0.18);
+        setTimeout(()=> fan.dispose(), 900);
+        try { launchConfetti(4200, 220); } catch(e){}
+    }
+
+    function startBGM() {
+        if (isMuted) return;
+        Tone.start();
+        if (isBgmPlaying) return;
+        isBgmPlaying = true;
+        if (!bgmLoop) {
+            let idx = 0;
+            const progression = ["C4","E4","G4","A3","D4","F4"];
+            bgmLoop = new Tone.Loop(time => {
+                const root = progression[idx % progression.length];
+                pianoSynth.triggerAttackRelease(root, "2n", time, 0.6);
+                if (Math.random() > 0.5) {
+                    pianoSynth.triggerAttackRelease(Tone.Frequency(root).transpose(7).toNote(), "8n", time + 0.05, 0.6);
+                } else {
+                    pianoSynth.triggerAttackRelease(Tone.Frequency(root).transpose(12).toNote(), "8n", time + 0.05, 0.45);
+                }
+                idx++;
+            }, "2n").start(0);
+        }
+        Tone.Transport.bpm.value = 75;
+        Tone.Transport.start();
+    }
+
+    function stopBGM() {
+        if (!isBgmPlaying) return;
+        if (bgmLoop) bgmLoop.stop();
+        pianoSynth.releaseAll();
+        Tone.Transport.stop();
+        isBgmPlaying = false;
+    }
+
+    function playCorrectSound() {
+        if (isMuted) return;
+        const now = Tone.now();
+        correctSynth.triggerAttackRelease("G6", "64n", now, 0.85);
+        correctSynth.triggerAttackRelease("B6", "64n", now + 0.05, 0.85);
+    }
+
+    function playWrongSound() {
+        if (isMuted) return;
+        wrongSynth.triggerAttackRelease("8n");
+    }
+
+    // =========================
+    // HELPERS
+    // =========================
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function pickAndRemove(sourceArr, count) {
+        const picked = [];
+        shuffle(sourceArr);
+        for (let i = 0; i < count && sourceArr.length > 0; i++) {
+            picked.push(sourceArr.shift());
+        }
+        return picked;
+    }
+
+    // =========================
+    // PREPARE ROUNDS (no duplicates)
+    // =========================
+    function prepareRounds() {
+        const { easy, hard } = partitionByDifficulty([...ALL_QUESTIONS]);
+        shuffle(easy); shuffle(hard);
+        const easyPool = [...easy];
+        const hardPool = [...hard];
+
+        const r1_easy = pickAndRemove(easyPool, 8);
+        const r1_hard = pickAndRemove(hardPool, 2);
+        const round1 = shuffle([...r1_easy, ...r1_hard]);
+
+        const r2_hard = pickAndRemove(hardPool, 8);
+        const r2_easy = pickAndRemove(easyPool, 2);
+
+        if (r2_hard.length < 8) {
+            const need = 8 - r2_hard.length;
+            r2_hard.push(...pickAndRemove(easyPool, need));
+        }
+        if (r2_easy.length < 2) {
+            const need = 2 - r2_easy.length;
+            r2_easy.push(...pickAndRemove(hardPool, need));
         }
 
-        // =================================================================
-        // SOUND (Tone.js) - Nhạc nền SÔI ĐỘNG (KAHOOT-STYLE) VÀ FX MỚI
-        // =================================================================
+        let round2 = shuffle([...r2_hard, ...r2_easy]);
 
-        // 1. CẤU HÌNH HIỆU ỨNG CHUNG (FX)
-        const fxReverb = new Tone.Reverb({ decay: 1.5, wet: 0.3 }).toDestination(); 
+        // Final safety: ensure unique ids between rounds
+        const ids1 = new Set(round1.map(q => q.id));
+        let filteredRound2 = round2.filter(q => !ids1.has(q.id));
+        if (filteredRound2.length < 10) {
+            const remaining = ALL_QUESTIONS.filter(q => !ids1.has(q.id) && !filteredRound2.find(x=>x.id===q.id));
+            shuffle(remaining);
+            while (filteredRound2.length < 10 && remaining.length) filteredRound2.push(remaining.shift());
+        }
 
-        // Synth cho Correct/Finish (âm thanh tích tích, cao, sạch)
-        const melodyFxSynth = new Tone.PolySynth(Tone.Synth, {
-            oscillator: { type: "sine" }, // Sóng Sine cho âm thanh sạch hơn (tích tích)
-            envelope: { attack: 0.005, release: 0.1 }
-        }).connect(fxReverb);
-        melodyFxSynth.volume.value = -8; 
+        roundQuestions[1] = round1.slice(0,10);
+        roundQuestions[2] = filteredRound2.slice(0,10);
+    }
 
-        // Synth cho Wrong (âm thanh "ẹc ẹc" - Noise/Buzz)
-        const errorFxSynth = new Tone.NoiseSynth({
-            noise: { type: "white" }, // FIX: Đã đổi sang "white" noise để tương thích với Tone.js 14.8.49
-            envelope: { attack: 0.005, decay: 0.2, sustain: 0, release: 0.2 }
-        }).toDestination();
-        errorFxSynth.volume.value = -10; 
+    // =========================
+    // TIMER
+    // =========================
+    let MAX_TIME = 40;
+    function startTimerUI() {
+        startTime = Date.now();
+        isAnswered = false;
+        clearInterval(timerInterval);
+        const bar = document.getElementById('timer-bar');
+        if (!bar) return;
+        timerInterval = setInterval(() => {
+            const elapsed = (Date.now() - startTime) / 1000;
+            const timeLeft = Math.max(0, MAX_TIME - elapsed);
+            const perc = (timeLeft / MAX_TIME) * 100;
+            bar.style.width = perc + '%';
+            if (perc > 50) bar.style.background = '#10b981';
+            else if (perc > 20) bar.style.background = '#f59e0b';
+            else bar.style.background = '#ef4444';
 
-        
-        // 2. CẤU HÌNH NHẠC NỀN (BGM - Sôi động hơn)
-        const bgmSynth = new Tone.PolySynth(Tone.Synth, {
-            oscillator: { type: "triangle" }, 
-            envelope: { attack: 0.05, decay: 0.1, sustain: 0.5, release: 0.2 } 
+            if (elapsed >= MAX_TIME) {
+                clearInterval(timerInterval);
+                if (!isAnswered) handleTimeout();
+            }
+        }, 100);
+    }
+
+    function stopTimerUI() {
+        clearInterval(timerInterval);
+    }
+
+    function handleTimeout() {
+        isAnswered = true;
+        stopTimerUI();
+        const currentQ = roundQuestions[round][currentQuestionIndex];
+        if (round === 2) {
+            totalScore -= 200;
+            if (totalScore < 0) totalScore = 0;
+            playWrongSound();
+            playTeoTeo();
+            showFeedback(false, 0, currentQ.info, currentQ.correctIndex);
+        } else {
+            playWrongSound();
+            showFeedback(false, 0, currentQ.info, currentQ.correctIndex);
+        }
+    }
+
+    // =========================
+    // RENDER / FLOW
+    // =========================
+    function renderApp() {
+        appContainer.innerHTML = '';
+        modalContainer.classList.add('hidden');
+
+        switch (gameState) {
+            case GAME_STATE.NAME_INPUT:
+                stopBGM();
+                renderNameInput();
+                break;
+            case GAME_STATE.INSTRUCTIONS:
+                startBGM();
+                renderInstructions();
+                break;
+            case GAME_STATE.QUIZ:
+                renderQuiz();
+                break;
+            case GAME_STATE.ROUND_END:
+                // handled elsewhere
+                break;
+            case GAME_STATE.RESULTS:
+                renderResults();
+                break;
+            default:
+                renderNameInput();
+        }
+    }
+
+    function renderNameInput() {
+        appContainer.innerHTML = `
+            <div class="text-center p-4 md:p-8 font-normal">
+                <h2 class="text-4xl font-header-footer text-red-600 mb-6 animate-pulse">BẮT ĐẦU TRÒ CHƠI</h2>
+                <p class="text-gray-600 text-lg mb-4 font-normal">Chào mừng bạn đến với hành trình tìm hiểu về Bác Hồ kính yêu!</p>
+                <div class="max-w-md mx-auto">
+                    <input id="player-name-input" type="text" placeholder="Nhập Họ Tên của bạn"
+                        class="w-full p-4 border-2 border-gray-300 rounded-lg text-lg font-normal focus:outline-none focus:ring-4 focus:ring-blue-500 transition duration-300"
+                        value="${playerName}">
+                    <button id="start-button" class="mt-6 w-full py-4 rounded-full text-white font-bold text-xl font-header-footer transition duration-300 bg-blue-600 hover:bg-blue-700 shadow-xl" disabled>BẮT ĐẦU TRÒ CHƠI <i class="fas fa-play ml-2"></i></button>
+                </div>
+            </div>
+        `;
+        const nameInput = document.getElementById('player-name-input');
+        const startButton = document.getElementById('start-button');
+        nameInput.addEventListener('input', () => {
+            playerName = nameInput.value.trim();
+            startButton.disabled = playerName.length < 2;
         });
-        
-        const delay = new Tone.PingPongDelay("8n", 0.2).toDestination(); 
-        bgmSynth.chain(delay, Tone.Destination);
-        bgmSynth.volume.value = -15; 
+        nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !startButton.disabled) handleNameSubmit(); });
+        startButton.addEventListener('click', handleNameSubmit);
+    }
 
-        // Các nốt nhạc được thiết kế lại cho cảm giác nhanh và sôi động hơn
-        const bgmNotes = ["C4", "G3", "A3", "F3"]; 
-        let bgmLoop = null;
-        let isBgmPlaying = false;
-        
-        const BGM_PACE = "4n"; // Tốc độ nhịp 4 nốt
+    function handleNameSubmit() {
+        playerName = document.getElementById('player-name-input').value.trim();
+        if (!playerName) return;
+        prepareRounds();
+        gameState = GAME_STATE.INSTRUCTIONS;
+        renderApp();
+    }
 
-        function startBGM() {
-            Tone.start();
-            
-            if (isBgmPlaying) return;
+    // Instructions (styled)
+    function renderInstructions() {
+        appContainer.innerHTML = `
+            <div class="p-4 md:p-8 font-normal text-center">
+                <h2 class="text-3xl font-header-footer text-red-600 mb-6">LUẬT CHƠI</h2>
+                <p class="text-lg text-gray-700 mb-4 font-normal">Xin chào <span class="font-bold text-red-800">${escapeHtml(playerName)}</span>! Rất vui vì bạn đến tham gia hành trình tìm hiểu về Bác Hồ. Chơi vui và học hay nhé 💫</p>
 
-            isBgmPlaying = true;
-            if (!bgmLoop) {
-                let noteIndex = 0;
-                // Vòng lặp phức tạp hơn, tạo cảm giác bassline và melody đan xen
-                bgmLoop = new Tone.Loop(time => {
-                    const note = bgmNotes[noteIndex % bgmNotes.length];
-                    
-                    // Main Melody (cao hơn)
-                    bgmSynth.triggerAttackRelease(note, "16n", time); 
-                    
-                    // Pulse/Bassline (thấp hơn 1 quãng 8)
-                    bgmSynth.triggerAttackRelease(Tone.Frequency(note).transpose(-12).toNote(), "8n", time, 0.5); 
-                    
-                    noteIndex++;
-                }, BGM_PACE).start(0); 
-            }
-            Tone.Transport.bpm.value = 180; // Tăng BPM để sôi động hơn
-            Tone.Transport.start();
-        }
+                <div class="space-y-6 text-left max-w-xl mx-auto text-gray-800">
+                    <div class="rule-box rule-blue">
+                        <i class="fas fa-info-circle rule-icon text-blue-700"></i>
+                        <div>
+                            <p class="rule-title">Cấu trúc trò chơi</p>
+                            <p class="rule-text mt-1">Trò chơi gồm hai vòng: Vòng 1 giúp bạn làm quen với những kiến thức cơ bản và một vài câu cần tư duy; Vòng 2 sẽ thử thách hơn với nhiều câu đòi hỏi suy nghĩ sâu hơn.</p>
+                        </div>
+                    </div>
 
-        function stopBGM() {
-            if (bgmLoop) {
-                bgmLoop.stop();
-            }
-            bgmSynth.releaseAll(); 
-            isBgmPlaying = false;
-        }
-        
-        // 3. CÁC ÂM THANH HIỆU ỨNG (FX) MỚI
-        function playCorrectSound() {
-            Tone.start();
-            const now = Tone.now();
-            // Tích tích: Hai nốt cao, ngắn, dứt khoát
-            melodyFxSynth.triggerAttackRelease("G6", "64n", now, 0.8);
-            melodyFxSynth.triggerAttackRelease("B6", "64n", now + 0.05, 0.8);
-        }
+                    <div class="rule-box rule-indigo">
+                        <i class="fas fa-layer-group rule-icon text-indigo-700"></i>
+                        <div>
+                            <p class="rule-title">Vòng 1 — Khởi động</p>
+                            <ul class="list-disc ml-6 mt-2 rule-text">
+                                <li>10 câu trắc nghiệm, mỗi câu 4 phương án.</li>
+                                <li>Mỗi câu có <strong>40 giây</strong> để trả lời.</li>
+                                <li>Trả lời đúng: điểm càng cao nếu bạn trả lời càng nhanh (tối đa <strong>1000 điểm/câu</strong>).</li>
+                                <li>Trả lời sai hoặc hết giờ: <strong>0 điểm</strong> cho câu đó.</li>
+                                <li>Nếu tổng điểm sau Vòng 1 đạt <strong>&ge; 6000 điểm</strong>, bạn sẽ được mời bước vào Vòng 2.</li>
+                            </ul>
+                        </div>
+                    </div>
 
-        function playWrongSound() {
-            Tone.start();
-            // Ẹc Ẹc: Noise Synth (giống tiếng buzz/error)
-            errorFxSynth.triggerAttackRelease("8n"); 
-        }
+                    <div class="rule-box rule-yellow">
+                        <i class="fas fa-bolt rule-icon text-yellow-700"></i>
+                        <div>
+                            <p class="rule-title">Vòng 2 — Thử thách</p>
+                            <ul class="list-disc ml-6 mt-2 rule-text">
+                                <li>10 câu trắc nghiệm, mỗi câu 4 phương án.</li>
+                                <li>Mỗi câu có <strong>30 giây</strong> để trả lời.</li>
+                                <li>Trả lời đúng: điểm theo thời gian (tối đa <strong>1000 điểm/câu</strong>).</li>
+                                <li>Trả lời sai hoặc hết giờ: <strong>-200 điểm</strong> cho mỗi lần.</li>
+                            </ul>
+                        </div>
+                    </div>
 
-        function playFinishSound() {
-            Tone.start();
-            const now = Tone.now();
-            melodyFxSynth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n", now);
-            melodyFxSynth.triggerAttackRelease("G6", "8n", now + 0.3);
-            melodyFxSynth.triggerAttackRelease("C7", "8n", now + 0.4);
-        }
+                    <div class="rule-box rule-green">
+                        <i class="fas fa-smile-beam rule-icon text-green-700"></i>
+                        <div>
+                            <p class="rule-title">Một vài lưu ý nhỏ</p>
+                            <ul class="list-disc ml-6 mt-2 rule-text">
+                                <li>Sau mỗi câu, bạn sẽ thấy thông báo cho biết bạn trả lời đúng hay sai, số điểm nhận được, đáp án đúng và một đoạn giải thích ngắn.</li>
+                                <li>Bạn có thể tắt/bật nhạc nền bằng nút <em>âm thanh</em> ở góc phải nếu cần.</li>
+                            </ul>
+                        </div>
+                    </div>
 
-        // =================================================================
-        // SIMPLE CANVAS CONFETTI EFFECT
-        // =================================================================
-        // Lightweight confetti implementation (no external libs).
-        function launchConfetti(duration = 3000, particleCount = 150) {
-            const canvas = document.createElement('canvas');
-            canvas.className = 'confetti-canvas';
-            canvas.style.position = 'fixed';
-            canvas.style.top = 0;
-            canvas.style.left = 0;
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            canvas.style.pointerEvents = 'none';
-            canvas.style.zIndex = 60;
-            document.body.appendChild(canvas);
+                </div>
 
-            const ctx = canvas.getContext('2d');
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            resize();
-            window.addEventListener('resize', resize);
+                <button id="confirm-rules" class="mt-8 px-8 py-4 rounded-full text-white font-bold text-xl font-header-footer transition duration-300 btn-confirm shadow-xl">
+                    MÌNH ĐÃ HIỂU LUẬT CHƠI <i class="fas fa-check ml-2"></i>
+                </button>
+            </div>
+        `;
+        document.getElementById('confirm-rules').addEventListener('click', startGame);
+    }
 
-            const colors = ['#FFC700', '#FF6B6B', '#6BCB77', '#4D96FF', '#C86DD7', '#FF8C42'];
-            const particles = [];
+    function startGame() {
+        Tone.start().then(() => startBGM());
+        totalScore = 0;
+        round = 1;
+        currentQuestionIndex = 0;
+        gameState = GAME_STATE.QUIZ;
+        renderApp();
+    }
 
-            for (let i = 0; i < particleCount; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height - canvas.height,
-                    size: (Math.random() * 8) + 6,
-                    tilt: (Math.random() * 10) - 10,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    velocityX: (Math.random() - 0.5) * 6,
-                    velocityY: Math.random() * 6 + 2,
-                    rotation: Math.random() * Math.PI
-                });
-            }
+    // Render Quiz, handle answers, feedback, leaderboard etc.
+    function renderQuiz() {
+        const qs = roundQuestions[round];
+        if (!qs || qs.length === 0) { showRoundEnd(); return; }
+        if (currentQuestionIndex >= qs.length) { showRoundEnd(); return; }
 
-            let start = performance.now();
+        MAX_TIME = round === 1 ? 40 : 30;
+        const currentQ = qs[currentQuestionIndex];
+        const qNumber = currentQuestionIndex + 1;
+        const totalQ = qs.length;
+        const answerColors = ['color-1','color-2','color-3','color-4'];
 
-            function draw(now) {
-                const elapsed = now - start;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                for (let p of particles) {
-                    p.x += p.velocityX;
-                    p.y += p.velocityY;
-                    p.velocityY += 0.05; // gravity
-                    p.rotation += 0.1;
+        appContainer.innerHTML = `
+            <div class="p-2 md:p-4 font-quiz">
+                <div id="timer-bar-container"><div id="timer-bar" style="width:100%; transition-duration:${MAX_TIME}s;"></div></div>
+                <div class="text-center mb-4">
+                    <p class="text-xl font-bold text-blue-600">Vòng ${round} — Câu ${qNumber}/${totalQ}</p>
+                    <p class="text-sm text-gray-600 mt-1">Tổng điểm hiện tại: <span class="font-bold text-blue-700">${totalScore.toLocaleString()} điểm</span></p>
+                </div>
 
-                    // draw a rotated rectangle as confetti piece
-                    ctx.save();
-                    ctx.translate(p.x, p.y);
-                    ctx.rotate(p.rotation);
-                    ctx.fillStyle = p.color;
-                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-                    ctx.restore();
-                }
+                <div class="bg-blue-100 p-6 rounded-lg mb-6 shadow-lg text-center">
+                    <h3 class="text-xl md:text-2xl font-bold text-gray-800 font-quiz">${currentQ.q}</h3>
+                </div>
 
-                if (elapsed < duration) {
-                    requestAnimationFrame(draw);
-                } else {
-                    // fade out for a bit
-                    let fadeStart = performance.now();
-                    const fade = (t) => {
-                        const fElapsed = t - fadeStart;
-                        const alpha = Math.max(0, 1 - fElapsed / 400);
-                        ctx.fillStyle = `rgba(255,255,255,${1 - alpha})`;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        if (alpha > 0) {
-                            requestAnimationFrame(fade);
-                        } else {
-                            cleanup();
-                        }
-                    };
-                    requestAnimationFrame(fade);
-                }
-            }
-
-            function cleanup() {
-                window.removeEventListener('resize', resize);
-                if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
-            }
-
-            requestAnimationFrame(draw);
-            // Safety cleanup after extra time
-            setTimeout(cleanup, duration + 1000);
-        }
-
-        // =================================================================
-        // SCORING LOGIC & HÀM HỖ TRỢ
-        // =================================================================
-
-        function calculateScore(timeTaken) {
-            if (timeTaken < 0.5) {
-                return MAX_POINTS_PER_QUESTION; 
-            }
-            const ratio = timeTaken / MAX_TIME_PER_QUESTION; 
-            const halvedRatio = ratio / 2; 
-            const multiplier = 1 - halvedRatio; 
-            const rawScore = MAX_POINTS_PER_QUESTION * multiplier; 
-            return Math.round(rawScore);
-        }
-
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        // =================================================================
-        // TIMER LOGIC
-        // =================================================================
-
-        function updateTimerBar(elapsedTime) {
-            const bar = document.getElementById('timer-bar');
-            if (!bar) return;
-
-            const timeLeft = Math.max(0, MAX_TIME_PER_QUESTION - elapsedTime);
-            const percentage = (timeLeft / MAX_TIME_PER_QUESTION) * 100;
-
-            bar.style.width = `${percentage}%`;
-
-            let color = '#10b981'; 
-            if (percentage < 50) {
-                color = '#f59e0b'; 
-            }
-            if (percentage < 20) {
-                color = '#ef4444'; 
-            }
-            bar.style.backgroundColor = color;
-        }
-
-        function startTimer() {
-            startTime = Date.now();
-            isAnswered = false;
-
-            clearInterval(timerInterval);
-
-            timerInterval = setInterval(() => {
-                const currentTime = Date.now();
-                const elapsedTime = (currentTime - startTime) / 1000;
-
-                updateTimerBar(elapsedTime);
-
-                if (elapsedTime >= MAX_TIME_PER_QUESTION) {
-                    clearInterval(timerInterval);
-                    if (!isAnswered) {
-                        handleTimeout();
-                    }
-                }
-            }, 50); 
-        }
-
-        function stopTimer() {
-            clearInterval(timerInterval);
-        }
-
-        function handleTimeout() {
-            isAnswered = true;
-            stopTimer();
-            const currentQ = questionSet[currentQuestionIndex];
-            showFeedback(false, 0, currentQ.info);
-        }
-
-
-        // =================================================================
-        // RENDER FUNCTIONS
-        // =================================================================
-
-        function renderApp() {
-            appContainer.innerHTML = '';
-            modalContainer.classList.add('hidden');
-            
-            appContainer.style.minHeight = 'auto'; 
-
-            switch (gameState) {
-                case GAME_STATE.NAME_INPUT:
-                    stopBGM(); 
-                    renderNameInput();
-                    break;
-                case GAME_STATE.INSTRUCTIONS:
-                    startBGM(); 
-                    renderInstructions();
-                    break;
-                case GAME_STATE.QUIZ:
-                    renderQuiz();
-                    break;
-                case GAME_STATE.RESULTS:
-                    stopBGM(); 
-                    renderResults(); 
-                    break;
-                default:
-                    renderNameInput();
-            }
-        }
-
-        function renderNameInput() {
-            appContainer.innerHTML = `
-                <div class="text-center p-4 md:p-8 font-normal">
-                    <h2 class="text-4xl font-header-footer text-red-600 mb-6 animate-pulse">BẮT ĐẦU TRÒ CHƠI</h2>
-                    <p class="text-gray-600 text-lg mb-8 font-normal">Chào mừng bạn đến với hành trình tìm hiểu về Bác Hồ kính yêu!</p>
-                    
-                    <div class="max-w-md mx-auto">
-                        <input id="player-name-input" type="text" placeholder="Nhập Họ Tên của bạn"
-                               class="w-full p-4 border-2 border-gray-300 rounded-lg text-lg font-normal focus:outline-none focus:ring-4 focus:ring-blue-500 transition duration-300"
-                               value="${playerName}">
-                        <button id="start-button"
-                                class="mt-8 w-full py-4 rounded-full text-white font-bold text-xl font-header-footer transition duration-300 bg-blue-600 hover:bg-blue-700 shadow-xl hover:shadow-2xl disabled:opacity-50"
-                                disabled>
-                            BẮT ĐẦU TRÒ CHƠI <i class="fas fa-play ml-2"></i>
+                <div id="answers-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${currentQ.a.map((ans, idx) => `
+                        <button class="answer-button flex items-center justify-center min-h-[88px] p-4 md:p-6 rounded-xl text-white text-lg font-bold shadow-lg ${answerColors[idx]}"
+                            onclick="handleAnswerClick(${idx})" data-index="${idx}" aria-label="Trả lời ${idx+1}">
+                            ${ans}
                         </button>
-                    </div>
+                    `).join('')}
                 </div>
-            `;
+            </div>
+        `;
+        startTimerUI();
+    }
 
-            const nameInput = document.getElementById('player-name-input');
-            const startButton = document.getElementById('start-button');
+    function handleAnswerClick(selectedIndex) {
+        if (isAnswered) return;
+        isAnswered = true;
+        stopTimerUI();
+        const currentQ = roundQuestions[round][currentQuestionIndex];
+        const timeTaken = (Date.now() - startTime) / 1000;
+        const isCorrect = selectedIndex === currentQ.correctIndex;
 
-            const checkInput = () => {
-                const name = nameInput.value.trim();
-                playerName = name;
-                startButton.disabled = name.length < 2;
-            };
-
-            nameInput.addEventListener('input', checkInput);
-            nameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !startButton.disabled) {
-                    handleNameSubmit();
-                }
-            });
-            startButton.addEventListener('click', handleNameSubmit);
-            checkInput(); 
-        }
-
-        function handleNameSubmit() {
-            playerName = document.getElementById('player-name-input').value.trim();
-            if (playerName) {
-                questionSet = generateQuestionSet();
-                gameState = GAME_STATE.INSTRUCTIONS;
-                renderApp();
-            }
-        }
-
-        function renderInstructions() {
-            appContainer.innerHTML = `
-                <div class="p-4 md:p-8 font-normal text-center">
-                    <h2 class="text-3xl font-header-footer text-red-600 mb-6">LUẬT CHƠI</h2>
-                    <p class="text-lg text-gray-700 mb-8 font-normal">Chào bạn <span class="font-bold text-red-800">${playerName}</span>! Hãy nắm rõ luật chơi để đạt điểm cao nhất nhé.</p>
-
-                    <div class="space-y-6 text-left max-w-xl mx-auto text-gray-800">
-                        <div class="flex items-start bg-blue-50 p-4 rounded-lg shadow-md">
-                            <i class="fas fa-question-circle text-2xl text-blue-600 mr-4 mt-1"></i>
-                            <p class="font-normal text-base">Trò chơi gồm <span class="font-bold">${questionSet.length} câu hỏi</span> trắc nghiệm với 4 phương án.</p>
-                        </div>
-
-                        <div class="flex items-start bg-yellow-50 p-4 rounded-lg shadow-md">
-                            <i class="fas fa-stopwatch text-2xl text-yellow-600 mr-4 mt-1"></i>
-                            <p class="font-normal text-base">Thời gian cho mỗi câu hỏi là <span class="font-bold text-red-600">${MAX_TIME_PER_QUESTION} giây</span>.</p>
-                        </div>
-
-                        <div class="flex items-start bg-green-50 p-4 rounded-lg shadow-md">
-                            <i class="fas fa-medal text-2xl text-green-600 mr-4 mt-1"></i>
-                            <p class="font-normal text-base"><span class="font-bold">Trả lời đúng:</span> Điểm nhận được càng cao nếu bạn trả lời càng nhanh. Tối đa 1000 điểm/câu.</p>
-                        </div>
-
-                        <div class="flex items-start bg-red-50 p-4 rounded-lg shadow-md">
-                            <i class="fas fa-times-circle text-2xl text-red-600 mr-4 mt-1"></i>
-                            <p class="font-normal text-base"><span class="font-bold">Trả lời sai/Hết giờ:</span> Bạn sẽ nhận được 0 điểm.</p>
-                        </div>
-                    </div>
-
-                    <button onclick="handleStartQuiz()"
-                            class="mt-10 px-8 py-4 rounded-full text-white font-bold text-xl font-header-footer transition duration-300 bg-green-600 hover:bg-green-700 shadow-xl hover:shadow-2xl">
-                        MÌNH ĐÃ HIỂU LUẬT CHƠI <i class="fas fa-check ml-2"></i>
-                    </button>
-                </div>
-            `;
-        }
-
-        function handleStartQuiz() {
-            currentQuestionIndex = 0;
-            totalScore = 0;
-            gameState = GAME_STATE.QUIZ;
-            renderApp();
-        }
-
-        function renderQuiz() {
-            if (currentQuestionIndex >= questionSet.length) {
-                gameState = GAME_STATE.RESULTS;
-                renderApp();
-                return;
-            }
-
-            const currentQ = questionSet[currentQuestionIndex];
-            const currentQNumber = currentQuestionIndex + 1;
-            const totalQNumber = questionSet.length;
-            const answerColors = ['color-1', 'color-2', 'color-3', 'color-4'];
-
-            appContainer.innerHTML = `
-                <div class="p-2 md:p-4 font-quiz">
-                    <!-- Thanh đếm ngược -->
-                    <div id="timer-bar-container">
-                        <div id="timer-bar" style="width: 100%; transition-duration: ${MAX_TIME_PER_QUESTION}s;"></div>
-                    </div>
-                    
-                    <div class="text-center mb-6">
-                        <p class="text-xl font-bold text-blue-600">Câu ${currentQNumber}/${totalQNumber}</p>
-                    </div>
-
-                    <!-- Khu vực Câu hỏi -->
-                    <div class="bg-blue-100 p-6 rounded-lg mb-8 shadow-lg text-center">
-                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 font-quiz">${currentQ.q}</h3>
-                    </div>
-
-                    <!-- Khu vực Câu trả lời -->
-                    <div id="answers-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        ${currentQ.a.map((answer, index) => `
-                            <button class="answer-button flex items-center justify-center min-h-[100px] p-4 md:p-6 rounded-xl text-white text-lg font-bold shadow-lg ${answerColors[index]}"
-                                    onclick="handleAnswerClick(${index})"
-                                    data-index="${index}">
-                                ${answer}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            
-            startTimer();
-        }
-
-        function handleAnswerClick(selectedIndex) {
-            if (isAnswered) return;
-            
-            isAnswered = true;
-            stopTimer();
-
-            const timeTaken = (Date.now() - startTime) / 1000;
-            const currentQ = questionSet[currentQuestionIndex];
-            const isCorrect = selectedIndex === currentQ.correctIndex;
-            const pointsEarned = isCorrect ? calculateScore(timeTaken) : 0;
-            
+        let pointsEarned = 0;
+        if (isCorrect) {
+            pointsEarned = calculateScore(timeTaken, MAX_TIME);
             totalScore += pointsEarned;
-
-            const buttons = document.querySelectorAll('.answer-button');
-            buttons.forEach((btn, index) => {
-                btn.classList.remove('shadow-lg', 'hover:shadow-2xl');
-                btn.disabled = true;
-
-                if (index === selectedIndex) {
-                    btn.classList.add('ring-4', isCorrect ? 'ring-green-500' : 'ring-red-500');
-                    btn.style.opacity = '1';
-                } else if (index === currentQ.correctIndex) {
-                    btn.classList.add('ring-4', 'ring-green-500', 'ring-offset-2');
-                    btn.style.opacity = '1';
-                } else {
-                    btn.style.opacity = '0.5';
-                }
-            });
-
-            showFeedback(isCorrect, pointsEarned, currentQ.info);
-        }
-
-        function showFeedback(isCorrect, pointsEarned, explanation) {
-            if (isCorrect) {
-                playCorrectSound();
-                modalTitle.textContent = "Bạn đã trả lời đúng rồi nè!";
-                modalTitle.classList.remove('text-red-600');
-                modalTitle.classList.add('text-green-600');
-            } else {
-                playWrongSound();
-                modalTitle.textContent = "Tiếc quá, bạn đã trả lời sai rồi!";
-                modalTitle.classList.remove('text-green-600');
-                modalTitle.classList.add('text-red-600');
+            playCorrectSound();
+        } else {
+            playWrongSound();
+            if (round === 2) {
+                totalScore -= 200;
+                if (totalScore < 0) totalScore = 0;
+                playTeoTeo();
             }
-
-            modalMessage.innerHTML = `Tổng điểm hiện tại: <span class="font-bold text-blue-600">${totalScore.toLocaleString()} điểm</span>`;
-            
-            modalScore.textContent = `+${pointsEarned.toLocaleString()} điểm`;
-            modalScore.classList.remove('hidden');
-
-            modalExplanation.innerHTML = `<span class="font-bold text-gray-800">Thông tin thêm:</span><br>${explanation}`;
-            modalExplanation.classList.remove('hidden');
-
-            modalButton.textContent = "Câu tiếp theo";
-            modalButton.onclick = handleNextQuestion;
-            modalButton.classList.remove('bg-red-600', 'hover:bg-red-700');
-            modalButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
-
-            modalContainer.classList.remove('hidden');
         }
 
-        function handleNextQuestion() {
+        const buttons = document.querySelectorAll('.answer-button');
+        buttons.forEach((btn, idx) => {
+            btn.disabled = true;
+            btn.classList.remove('shadow-lg');
+            btn.style.opacity = '0.6';
+            if (idx === selectedIndex) {
+                btn.style.opacity = '1';
+                btn.classList.add(isCorrect ? 'ring-4' : 'ring-4');
+                btn.classList.add(isCorrect ? 'ring-green-500' : 'ring-red-500');
+            }
+            if (idx === currentQ.correctIndex) {
+                btn.style.opacity = '1';
+                btn.classList.add('ring-4','ring-green-500','ring-offset-2');
+            }
+        });
+
+        showFeedback(isCorrect, pointsEarned, currentQ.info, currentQ.correctIndex);
+    }
+
+    function calculateScore(timeTaken, maxTime) {
+        if (timeTaken < 0.5) return MAX_POINTS_PER_QUESTION;
+        const ratio = timeTaken / maxTime;
+        const halvedRatio = ratio / 2;
+        const multiplier = Math.max(0, 1 - halvedRatio);
+        const raw = MAX_POINTS_PER_QUESTION * multiplier;
+        return Math.round(raw);
+    }
+
+    function showFeedback(isCorrect, pointsEarned, explanation, correctIndex) {
+        modalTitle.textContent = isCorrect ? "Bạn đã trả lời đúng rồi nè!" : "Tiếc quá, bạn đã trả lời sai rồi!";
+        modalTitle.classList.remove('text-red-600','text-green-600');
+        modalTitle.classList.add(isCorrect ? 'text-green-600':'text-red-600');
+
+        modalMessage.innerHTML = `Tổng điểm hiện tại: <span class="font-bold text-blue-600">${totalScore.toLocaleString()} điểm</span>`;
+        modalScore.textContent = (isCorrect ? '+' : '') + pointsEarned.toLocaleString() + ' điểm';
+        modalScore.classList.remove('hidden');
+
+        const correctLabel = String.fromCharCode(65 + correctIndex);
+        modalCorrect.innerHTML = `<strong>Đáp án đúng:</strong> ${correctLabel}. <span class="ml-2 text-gray-700">${roundQuestions[round][currentQuestionIndex].a[correctIndex]}</span>`;
+        modalCorrect.classList.remove('hidden');
+
+        modalExplanation.innerHTML = `<strong>Thông tin thêm:</strong><br>${explanation || ''}`;
+        modalExplanation.classList.remove('hidden');
+
+        modalButtons.innerHTML = '';
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'px-6 py-3 rounded-full text-white font-bold bg-blue-600 hover:bg-blue-700';
+        nextBtn.textContent = 'Câu tiếp theo';
+        nextBtn.onclick = () => {
             currentQuestionIndex++;
             modalContainer.classList.add('hidden');
             modalScore.classList.add('hidden');
             modalExplanation.classList.add('hidden');
+            modalCorrect.classList.add('hidden');
             renderApp();
-        }
+        };
+        modalButtons.appendChild(nextBtn);
 
-        function renderResults() {
-            // Leaderboard and Firebase were removed.
-            // We simply show the results modal (no persistence).
-            showResultModal();
-        }
+        modalContainer.classList.remove('hidden');
+    }
 
-        function showResultModal() {
-            // Play finish sound and launch confetti
-            playFinishSound();
-            try {
-                launchConfetti(4000, 220); // 4 seconds, 220 particles
-            } catch (e) {
-                console.warn("Confetti launch failed:", e);
+    function showRoundEnd() {
+        const name = playerName;
+        modalTitle.textContent = `Kết thúc Vòng ${round}`;
+        modalTitle.classList.remove('text-red-600','text-green-600');
+        modalTitle.classList.add('text-gray-800');
+        modalMessage.innerHTML = `Số điểm của bạn <strong>${name}</strong> là: <span class="font-bold text-blue-600">${totalScore.toLocaleString()} điểm</span>`;
+
+        modalScore.classList.add('hidden');
+        modalCorrect.classList.add('hidden');
+        modalExplanation.classList.add('hidden');
+        modalButtons.innerHTML = '';
+
+        if (round === 1) {
+            if (totalScore >= 6000) {
+                const congr = document.createElement('p');
+                congr.className = 'text-green-700 font-bold my-3';
+                congr.textContent = `Chúc mừng bạn ${name} đã đủ điều kiện để bước vào vòng 2.`;
+                modalExplanation.innerHTML = '';
+                modalExplanation.appendChild(congr);
+                modalExplanation.classList.remove('hidden');
+
+                const readyBtn = document.createElement('button');
+                readyBtn.className = 'px-6 py-3 rounded-full text-white font-bold bg-indigo-600 hover:bg-indigo-700';
+                readyBtn.textContent = 'Mình đã sẵn sàng để bước vào vòng 2';
+                readyBtn.onclick = () => {
+                    modalContainer.classList.add('hidden');
+                    playApplause();
+                    round = 2;
+                    currentQuestionIndex = 0;
+                    gameState = GAME_STATE.QUIZ;
+                    renderApp();
+                };
+                modalButtons.appendChild(readyBtn);
+            } else {
+                const msg = document.createElement('p');
+                msg.className = 'text-red-700 font-semibold my-2';
+                msg.textContent = `Tiếc quá, bạn ${name} không đủ điểm để bước vào vòng 2.`;
+                modalExplanation.innerHTML = '';
+                modalExplanation.appendChild(msg);
+                modalExplanation.classList.remove('hidden');
+
+                const homeBtn = document.createElement('button');
+                homeBtn.className = 'px-6 py-3 rounded-full text-white font-bold bg-blue-600 hover:bg-blue-700';
+                homeBtn.textContent = 'Quay về trang chủ';
+                homeBtn.onclick = () => { modalContainer.classList.add('hidden'); resetToHome(); };
+
+                const replayBtn = document.createElement('button');
+                replayBtn.className = 'px-6 py-3 rounded-full text-white font-bold bg-red-600 hover:bg-red-700';
+                replayBtn.textContent = 'Chơi lại';
+                replayBtn.onclick = () => { modalContainer.classList.add('hidden'); replayGame(); };
+
+                modalButtons.appendChild(homeBtn);
+                modalButtons.appendChild(replayBtn);
+
+                playSadHorn();
+                setTimeout(playTeoTeo, 300);
             }
-
+        } else {
             modalTitle.textContent = `🎉 CHÚC MỪNG BẠN ${playerName.toUpperCase()} ĐÃ HOÀN THÀNH TRÒ CHƠI! 🎉`;
             modalTitle.classList.remove('text-red-600');
             modalTitle.classList.add('text-green-600');
 
-            modalMessage.innerHTML = `<span class="text-xl md:text-2xl text-gray-800 font-normal">Số điểm cuối cùng của bạn là:</span>`;
-            
             modalScore.textContent = `${totalScore.toLocaleString()} điểm`;
             modalScore.classList.remove('hidden');
 
-            modalExplanation.classList.add('hidden');
+            const finishBtn = document.createElement('button');
+            finishBtn.className = 'px-6 py-3 rounded-full text-white font-bold bg-blue-600 hover:bg-blue-700';
+            finishBtn.textContent = 'Lưu điểm & Xem bảng xếp hạng';
+            finishBtn.onclick = () => {
+                modalContainer.classList.add('hidden');
+                saveScoreToLeaderboard(playerName, totalScore).then(() => {
+                    openLeaderboard();
+                }).catch((e) => {
+                    console.error(e);
+                    openLeaderboard();
+                });
+            };
 
-            // Changed behavior: go back home (no leaderboard view)
-            modalButton.textContent = "VỀ TRANG CHỦ";
-            modalButton.onclick = handleGoHome;
-            modalButton.classList.remove('bg-red-600', 'hover:bg-red-700');
-            modalButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            const homeBtn = document.createElement('button');
+            homeBtn.className = 'px-6 py-3 rounded-full text-white font-bold bg-gray-500 hover:bg-gray-600';
+            homeBtn.textContent = 'Về trang chủ';
+            homeBtn.onclick = () => { modalContainer.classList.add('hidden'); resetToHome(); };
 
-            modalContainer.classList.remove('hidden');
+            modalButtons.appendChild(finishBtn);
+            modalButtons.appendChild(homeBtn);
+            playFanfare();
         }
-        
-        // Removed leaderboard rendering functions - leaderboard disabled
 
-        function handleGoHome() {
-            playerName = '';
-            totalScore = 0;
-            currentQuestionIndex = 0;
-            isAnswered = false;
-            gameState = GAME_STATE.NAME_INPUT;
-            renderApp();
+        modalContainer.classList.remove('hidden');
+    }
+
+    function renderResults() { showRoundEnd(); }
+    function resetToHome() {
+        playerName = '';
+        totalScore = 0;
+        currentQuestionIndex = 0;
+        round = 1;
+        gameState = GAME_STATE.NAME_INPUT;
+        stopBGM();
+        renderApp();
+    }
+    function replayGame() {
+        totalScore = 0;
+        currentQuestionIndex = 0;
+        round = 1;
+        prepareRounds();
+        gameState = GAME_STATE.QUIZ;
+        renderApp();
+    }
+
+    // =========================
+    // LEADERBOARD (Firebase or localStorage)
+    // =========================
+    async function saveScoreToLeaderboard(name, score) {
+        const entry = { name, score: Number(score), timestamp: Date.now() };
+        if (useFirebase) {
+            const ref = firebase.database().ref('leaderboard');
+            await ref.push(entry);
+            return;
+        } else {
+            const key = 'local_leaderboard_v1';
+            const list = JSON.parse(localStorage.getItem(key) || "[]");
+            list.push(entry);
+            list.sort((a,b) => b.score - a.score);
+            localStorage.setItem(key, JSON.stringify(list.slice(0, 100)));
+            return;
         }
+    }
 
-        // =================================================================
-        // KHỞI TẠO
-        // =================================================================
-        window.onload = function () {
-            // Firebase / leaderboard removed.
-            // Đảm bảo tất cả âm thanh Tone.js đã tải trước khi render.
-            Tone.loaded().then(() => {
-                renderApp(); 
-            }).catch(err => {
-                 console.error("Lỗi khi tải tài nguyên Tone.js:", err);
-                 renderApp(); 
+    async function getTopLeaderboard(limit = 10) {
+        if (useFirebase) {
+            const ref = firebase.database().ref('leaderboard').orderByChild('score').limitToLast(limit);
+            const snapshot = await ref.once('value');
+            const data = snapshot.val() || {};
+            const arr = Object.keys(data).map(k => ({ key: k, ...data[k] }));
+            arr.sort((a,b) => b.score - a.score);
+            return arr;
+        } else {
+            const key = 'local_leaderboard_v1';
+            const list = JSON.parse(localStorage.getItem(key) || "[]");
+            list.sort((a,b) => b.score - a.score);
+            return list.slice(0, limit);
+        }
+    }
+
+    function renderLeaderboardList(items) {
+        leaderboardList.innerHTML = '';
+        if (!items || items.length === 0) {
+            leaderboardList.innerHTML = `<div class="text-center p-4">Chưa có dữ liệu bảng xếp hạng.</div>`;
+            return;
+        }
+        items.forEach((it, idx) => {
+            const rank = idx + 1;
+            const row = document.createElement('div');
+            row.className = 'leaderboard-row bg-gradient-to-r from-white to-gray-50 p-3 rounded-xl';
+            const badge = document.createElement('div');
+            badge.className = 'leaderboard-badge ' + (rank === 1 ? 'leader-rank-1' : rank === 2 ? 'leader-rank-2' : rank === 3 ? 'leader-rank-3' : 'leader-rank');
+            badge.innerHTML = `<span>${rank}</span>`;
+            const nameDiv = document.createElement('div');
+            nameDiv.innerHTML = `<div class="font-bold">${escapeHtml(it.name)}</div><div class="text-sm text-gray-500">ID: ${it.key ? it.key.slice(0,6) : '-'}</div>`;
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = 'ml-auto text-right';
+            scoreDiv.innerHTML = `<div class="text-xl font-bold text-blue-600">${Number(it.score).toLocaleString()}</div><div class="text-sm text-gray-500">${new Date(it.timestamp || Date.now()).toLocaleDateString()}</div>`;
+            row.appendChild(badge);
+            row.appendChild(nameDiv);
+            row.appendChild(scoreDiv);
+            leaderboardList.appendChild(row);
+        });
+    }
+
+    function openLeaderboard() {
+        getTopLeaderboard(10).then(items => {
+            renderLeaderboardList(items);
+            leaderboardModal.classList.remove('hidden');
+        }).catch(err => {
+            console.error(err);
+            leaderboardList.innerHTML = `<div class="p-4">Lỗi khi tải bảng xếp hạng.</div>`;
+            leaderboardModal.classList.remove('hidden');
+        });
+    }
+
+    openLeaderboardBtn.addEventListener('click', openLeaderboard);
+    closeLeaderboardBtn.addEventListener('click', () => { leaderboardModal.classList.add('hidden'); });
+    refreshLeaderboardBtn.addEventListener('click', () => { getTopLeaderboard(10).then(items => renderLeaderboardList(items)); });
+
+    if (useFirebase) {
+        try {
+            const dbRef = firebase.database().ref('leaderboard').limitToLast(10);
+            dbRef.on('value', (snap) => {
+                const data = snap.val() || {};
+                const arr = Object.keys(data).map(k => ({ key: k, ...data[k] }));
+                arr.sort((a,b) => b.score - a.score);
+                if (!leaderboardModal.classList.contains('hidden')) renderLeaderboardList(arr);
+            });
+        } catch (e) {
+            console.warn('Realtime leaderboard listener failed', e);
+        }
+    }
+
+    // =========================
+    // CONFETTI
+    // =========================
+    function launchConfetti(duration = 3000, particleCount = 150) {
+        const canvas = document.createElement('canvas');
+        canvas.className = 'confetti-canvas';
+        canvas.style.position = 'fixed';
+        canvas.style.top = 0; canvas.style.left = 0;
+        canvas.style.width = '100%'; canvas.style.height = '100%';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = 1000;
+        document.body.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        const colors = ['#FFC700','#FF6B6B','#6BCB77','#4D96FF','#C86DD7','#FF8C42'];
+        const particles = [];
+        for (let i=0;i<particleCount;i++){
+            particles.push({
+                x: Math.random()*canvas.width,
+                y: Math.random()*canvas.height - canvas.height,
+                size: Math.random()*8+6,
+                tilt: Math.random()*20 - 10,
+                color: colors[Math.floor(Math.random()*colors.length)],
+                vx: (Math.random()-0.5)*6,
+                vy: Math.random()*6 + 2,
+                rot: Math.random()*Math.PI
             });
         }
+        let start = performance.now();
+        function draw(now){
+            const elapsed = now - start;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            for (let p of particles) {
+                p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.rot += 0.08;
+                ctx.save();
+                ctx.translate(p.x,p.y);
+                ctx.rotate(p.rot);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+                ctx.restore();
+            }
+            if (elapsed < duration) requestAnimationFrame(draw);
+            else cleanup();
+        }
+        function cleanup(){ window.removeEventListener('resize', resize); if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas); }
+        requestAnimationFrame(draw);
+        setTimeout(cleanup, duration+1200);
+    }
+
+    // =========================
+    // HELPERS & INIT
+    // =========================
+    function escapeHtml(text) {
+        return String(text).replace(/[&<>"'\/]/g, function (s) {
+            const entityMap = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': '&quot;', "'": '&#39;', "/": '&#x2F;' };
+            return entityMap[s];
+        });
+    }
+
+    muteButton.addEventListener('click', () => {
+        isMuted = !isMuted;
+        muteIcon.className = isMuted ? 'fas fa-volume-mute text-gray-400' : 'fas fa-volume-up text-blue-600';
+        if (isMuted) stopBGM();
+        else startBGM();
+    });
+
+    window.onload = function() {
+        Tone.loaded().then(() => { renderApp(); }).catch((e) => { console.warn('Tone load error', e); renderApp(); });
+    };
+
     </script>
 </body>
 </html>
